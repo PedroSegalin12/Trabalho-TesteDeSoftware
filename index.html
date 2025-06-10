@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Tarefas com Testes</title>
+  <style>
+    body { font-family: Arial; text-align: center; padding: 20px; }
+    input, select, button { padding: 5px; margin: 5px; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 8px 0; }
+    .concluida { text-decoration: line-through; color: gray; }
+    .alta { color: red; }
+    .media { color: orange; }
+    .baixa { color: green; }
+    pre { text-align: left; background: #f0f0f0; padding: 10px; border-radius: 5px; max-width: 600px; margin: auto; }
+  </style>
+</head>
+<body>
+  <h1>Lista de Tarefas</h1>
+
+  <input id="tarefaInput" type="text" placeholder="Digite uma tarefa">
+  <select id="prioridadeInput">
+    <option value="alta">Alta</option>
+    <option value="media">Média</option>
+    <option value="baixa">Baixa</option>
+  </select>
+  <button onclick="adicionarTarefa()">Adicionar</button>
+
+  <div>
+    <label for="filtro">Filtrar: </label>
+    <select id="filtro" onchange="filtrarTarefas()">
+      <option value="todas">Todas</option>
+      <option value="pendentes">Pendentes</option>
+      <option value="concluidas">Concluídas</option>
+    </select>
+  </div>
+
+  <ul id="listaTarefas"></ul>
+
+  <hr>
+  <hr>
+<button onclick="runUnitTestsTarefas()">Rodar Testes Unitários</button>
+<pre id="saidaTestes" style="text-align: left; margin-top: 10px; background: #f4f4f4; padding: 10px; border-radius: 5px;"></pre>
+
+<script src="testes/Unitarios.js"></script> <!-- Arquivo externo com os testes -->
+
+  <h2>Testes</h2>
+  <button onclick="runUnitTestsTarefas()">Rodar Testes Unitários</button>
+  <pre id="saidaTestes"></pre>
+
+  <script>
+    function adicionarTarefa() {
+      const texto = document.getElementById('tarefaInput').value.trim();
+      const prioridade = document.getElementById('prioridadeInput').value;
+      if (texto === '') return;
+
+      const li = document.createElement('li');
+      li.setAttribute('data-concluida', 'false');
+      li.classList.add(prioridade);
+
+      const span = document.createElement('span');
+      span.textContent = texto + " (" + prioridade + ")";
+      span.style.cursor = 'pointer';
+
+      span.onclick = () => {
+        li.classList.toggle('concluida');
+        li.setAttribute('data-concluida', li.classList.contains('concluida'));
+        filtrarTarefas();
+      };
+
+      const btn = document.createElement('button');
+      btn.textContent = 'Remover';
+      btn.onclick = () => li.remove();
+
+      li.appendChild(span);
+      li.appendChild(btn);
+
+      document.getElementById('listaTarefas').appendChild(li);
+      document.getElementById('tarefaInput').value = '';
+    }
+
+    function filtrarTarefas() {
+      const filtro = document.getElementById('filtro').value;
+      const tarefas = document.querySelectorAll('#listaTarefas li');
+
+      tarefas.forEach(tarefa => {
+        const concluida = tarefa.getAttribute('data-concluida') === 'true';
+
+        if (filtro === 'todas') {
+          tarefa.style.display = '';
+        } else if (filtro === 'pendentes' && concluida) {
+          tarefa.style.display = 'none';
+        } else if (filtro === 'concluidas' && !concluida) {
+          tarefa.style.display = 'none';
+        } else {
+          tarefa.style.display = '';
+        }
+      });
+    }
+
+    function testar(nome, func) {
+      const saida = document.getElementById("saidaTestes");
+      try {
+        func();
+        console.log("✔️ " + nome);
+        saida.textContent += "✔️ " + nome + "\n";
+      } catch (e) {
+        console.error("❌ " + nome + ": " + e.message);
+        saida.textContent += "❌ " + nome + ": " + e.message + "\n";
+      }
+    }
+
+    function runUnitTestsTarefas() {
+      const lista = document.getElementById("listaTarefas");
+      const input = document.getElementById("tarefaInput");
+      const prioridade = document.getElementById("prioridadeInput");
+      const filtro = document.getElementById("filtro");
+      const saida = document.getElementById("saidaTestes");
+
+      // Limpa antes de testar
+      lista.innerHTML = '';
+      saida.textContent = '';
+      input.value = '';
+      prioridade.value = 'alta';
+      filtro.value = 'todas';
+
+      // Teste: adicionar tarefa
+      testar("UNIT - Adicionar tarefa", () => {
+        input.value = "Testar tarefa";
+        prioridade.value = "media";
+        adicionarTarefa();
+
+        const tarefas = document.querySelectorAll('#listaTarefas li');
+        if (tarefas.length !== 1) throw new Error("Tarefa não foi adicionada");
+        if (!tarefas[0].textContent.includes("Testar tarefa")) throw new Error("Texto da tarefa incorreto");
+      });
+
+      // Teste: marcar como concluída
+      testar("UNIT - Marcar tarefa como concluída", () => {
+        const span = document.querySelector('li span');
+        span.click();
+        const li = span.parentElement;
+        if (!li.classList.contains("concluida")) throw new Error("Tarefa não foi marcada como concluída");
+        if (li.getAttribute("data-concluida") !== "true") throw new Error("Atributo 'data-concluida' incorreto");
+      });
+
+      // Teste: filtro pendentes
+      testar("UNIT - Filtrar apenas tarefas pendentes", () => {
+        filtro.value = "pendentes";
+        filtrarTarefas();
+        const li = document.querySelector('li');
+        if (li.style.display !== "none") throw new Error("Tarefa concluída deveria estar oculta");
+      });
+
+      // Teste: filtro todas
+      testar("UNIT - Filtrar todas as tarefas", () => {
+        filtro.value = "todas";
+        filtrarTarefas();
+        const li = document.querySelector('li');
+        if (li.style.display === "none") throw new Error("Tarefa deveria estar visível");
+      });
+
+      // Teste: remover tarefa
+      testar("UNIT - Remover tarefa", () => {
+        const botaoRemover = document.querySelector('li button');
+        botaoRemover.click();
+        const tarefas = document.querySelectorAll('#listaTarefas li');
+        if (tarefas.length !== 0) throw new Error("Tarefa não foi removida");
+      });
+    }
+  </script>
+</body>
+</html>
