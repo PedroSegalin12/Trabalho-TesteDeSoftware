@@ -1,53 +1,56 @@
-function testar(descricao, callback) {
-  try {
-    callback();
-    registrarResultado(`✅ ${descricao}`);
-  } catch (e) {
-    registrarResultado(`❌ ${descricao} - ${e.message}`);
-  }
-}
+function runUnitTests() {
+  limparSaida();
 
-function registrarResultado(texto) {
-  const saida = document.getElementById("saidaTestes");
-  saida.textContent += texto + "\n";
-}
-
-function runUnitTestsTarefas() {
-  document.getElementById("saidaTestes").textContent = ""; // Limpa testes anteriores
-
-  // Simula adicionar uma tarefa antes dos testes
-  document.getElementById("tarefaInput").value = "Estudar JS";
-  document.getElementById("prioridadeInput").value = "alta";
-  adicionarTarefa();
-
-  testar("UNIT - Marcar tarefa como concluída", () => {
-    const tarefa = document.querySelector("li");
-    const span = tarefa.querySelector("span");
-    span.click();
-    if (!tarefa.classList.contains("concluida")) throw new Error("Tarefa não foi marcada como concluída");
+  testar("UNIT - Adição de tarefa", () => {
+    document.getElementById("tarefaInput").value = "Teste 1";
+    document.getElementById("prioridadeInput").value = "alta";
+    adicionarTarefa();
+    const tarefas = document.querySelectorAll("#listaTarefas li");
+    if (tarefas.length === 0) throw new Error("Tarefa não foi adicionada");
   });
 
-  testar("UNIT - Filtrar apenas tarefas pendentes", () => {
-    document.getElementById("filtro").value = "pendentes";
-    filtrarTarefas();
-
-    const tarefa = document.querySelector("li");
-    if (tarefa.style.display !== "none") throw new Error("Tarefa concluída deveria estar oculta");
-  });
-
-  testar("UNIT - Filtrar todas as tarefas", () => {
-    document.getElementById("filtro").value = "todas";
-    filtrarTarefas();
-
-    const tarefa = document.querySelector("li");
-    if (tarefa.style.display === "none") throw new Error("Tarefa deveria estar visível");
-  });
-
-  testar("UNIT - Remover tarefa", () => {
-    const botaoRemover = document.querySelector("li button");
+  testar("UNIT - Remoção de tarefa", () => {
+    const botaoRemover = document.querySelector("li button:nth-of-type(2)");
+    if (!botaoRemover) throw new Error("Botão de remover não encontrado");
     botaoRemover.click();
-
     const tarefas = document.querySelectorAll("#listaTarefas li");
     if (tarefas.length !== 0) throw new Error("Tarefa não foi removida");
+  });
+
+  testar("UNIT - Conclusão de tarefa", () => {
+    document.getElementById("tarefaInput").value = "Teste 2";
+    document.getElementById("prioridadeInput").value = "média";
+    adicionarTarefa();
+    const botaoConcluir = document.querySelector("li button:nth-of-type(1)");
+    botaoConcluir.click();
+    const li = document.querySelector("#listaTarefas li");
+    if (li.getAttribute("data-concluida") !== "true") {
+      throw new Error("Tarefa não foi marcada como concluída");
+    }
+  });
+
+  testar("UNIT - Filtro de tarefas", () => {
+    document.getElementById("filtro").value = "concluidas";
+    filtrarTarefas();
+    const tarefasVisiveis = Array.from(
+      document.querySelectorAll("#listaTarefas li")
+    ).filter((el) => el.style.display !== "none");
+    if (tarefasVisiveis.length === 0)
+      throw new Error("Filtro não funcionou corretamente");
+  });
+
+  testar("UNIT - Prioridade atribuída", () => {
+    const span = document.querySelector("#listaTarefas span");
+    if (!span || !span.textContent.includes("(média)")) {
+      throw new Error("Prioridade não atribuída corretamente");
+    }
+  });
+
+  testar("UNIT - Campo de input está vazio após adicionar", () => {
+    document.getElementById("tarefaInput").value = "Limpar quarto";
+    document.getElementById("prioridadeInput").value = "alta";
+    adicionarTarefa();
+    const valorAtual = document.getElementById("tarefaInput").value;
+    if (valorAtual !== "") throw new Error("Campo não foi limpo");
   });
 }
