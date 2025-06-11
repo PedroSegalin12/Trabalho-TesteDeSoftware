@@ -18,7 +18,7 @@ function runUnitTests() {
   });
 
   testar("UNIT - Conclusão de tarefa", () => {
-    document.getElementById("tarefaInput").value = "Teste 2";
+    document.getElementById("tarefaInput").value = "Teste unitários ";
     document.getElementById("prioridadeInput").value = "média";
     adicionarTarefa();
     const botaoConcluir = document.querySelector("li button:nth-of-type(1)");
@@ -47,7 +47,7 @@ function runUnitTests() {
   });
 
   testar("UNIT - Campo de input está vazio após adicionar", () => {
-    document.getElementById("tarefaInput").value = "Limpar quarto";
+    document.getElementById("tarefaInput").value = "Teste unitários";
     document.getElementById("prioridadeInput").value = "alta";
     adicionarTarefa();
     const valorAtual = document.getElementById("tarefaInput").value;

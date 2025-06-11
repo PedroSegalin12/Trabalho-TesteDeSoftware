@@ -35,7 +35,7 @@ function runComponentTests() {
   testar("COMPONENT - Botão Remover existe após adicionar tarefa", () => {
     // Limpa e adiciona uma nova tarefa
     document.getElementById("listaTarefas").innerHTML = "";
-    document.getElementById("tarefaInput").value = "Teste Botão Remover";
+    document.getElementById("tarefaInput").value = "Teste de componentes";
     document.getElementById("prioridadeInput").value = "baixa";
     adicionarTarefa();
 

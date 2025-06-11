@@ -2,35 +2,82 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lista de Tarefas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    .grupo {
+      margin-bottom: 15px;
+    }
+
+    input,
+    select,
+    button {
+      margin-right: 5px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    .concluida {
+      color: gray;
+    }
+
+    #saidaTestes {
+      background: #ffffff;
+      padding: 10px;
+      border: 1px solid #f0f0f0;
+      white-space: pre-wrap;
+    }
+  </style>
 </head>
+
 <body>
-  <input id="tarefaInput" placeholder="Digite a tarefa..." />
-  <select id="prioridadeInput">
-    <option value="alta">Alta</option>
-    <option value="media">Média</option>
-    <option value="baixa">Baixa</option>
-  </select>
-  <button onclick="adicionarTarefa()">Adicionar</button>
+  <!-- Entrada de tarefa -->
+  <div class="grupo">
+    <input id="tarefaInput" placeholder="Digite a tarefa..." />
+    <select id="prioridadeInput">
+      <option value="alta">Alta</option>
+      <option value="media">Média</option>
+      <option value="baixa">Baixa</option>
+    </select>
+    <button onclick="adicionarTarefa()">Adicionar</button>
+  </div>
 
   <!-- Filtro -->
-  <select id="filtro" onchange="filtrarTarefas()">
-    <option value="todas">Todas</option>
-    <option value="pendentes">Pendentes</option>
-    <option value="concluidas">Concluídas</option>
-  </select>
+  <div class="grupo">
+    <select id="filtro" onchange="filtrarTarefas()">
+      <option value="todas">Todas</option>
+      <option value="pendentes">Pendentes</option>
+      <option value="concluidas">Concluídas</option>
+    </select>
+  </div>
 
-  <!-- Lista de tarefas -->
-  <ul id="listaTarefas"></ul>
+  <!-- Lista -->
+  <div class="grupo">
+    <ul id="listaTarefas"></ul>
+  </div>
 
   <!-- Testes -->
-  <hr>
-  <button onclick="runUnitTests()">Rodar Testes Unitários</button>
-  <button onclick="runComponentTests()">Rodar Testes de Componentes</button>
-  <pre id="saidaTestes"></pre>
+  <div class="grupo">
+    <button onclick="limparSaida(); runUnitTests()">Rodar Testes Unitários</button>
+    <button onclick="limparSaida(); runComponentTests()">Rodar Testes de Componentes</button>
+  </div>
+  <div class="grupo">
+    <pre id="saidaTestes"></pre>
+  </div>
 
-  <!-- Script principal do app -->
+  <!-- Script principal -->
   <script>
     function adicionarTarefa() {
       const texto = document.getElementById('tarefaInput').value.trim();
@@ -80,8 +127,8 @@
         const concluida = tarefa.classList.contains("concluida");
         tarefa.style.display =
           filtro === 'todas' ||
-          (filtro === 'pendentes' && !concluida) ||
-          (filtro === 'concluidas' && concluida)
+            (filtro === 'pendentes' && !concluida) ||
+            (filtro === 'concluidas' && concluida)
             ? 'list-item'
             : 'none';
       });
@@ -109,8 +156,9 @@
     }
   </script>
 
-  <!-- Script externo de testes unitários -->
+  <!-- Testes externos -->
   <script src="testes/Unitarios.js"></script>
   <script src="testes/Componentes.js"></script>
 </body>
+
 </html>
